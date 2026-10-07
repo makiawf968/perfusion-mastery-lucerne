@@ -156,8 +156,28 @@
 
 <script>
 const Q = [
- {ch:1, label:"Gas transfer",
-  t:"The 'Fick diffusion' equation for gas transfer across the oxygenator membrane describes rate of transfer as proportional to area × driving gradient / thickness. For CO₂ vs O₂, which gas transfers approximately 20× more rapidly for the same partial pressure difference?",
+ {ch:19, label:"Keeping the patient from overheating",
+  t:"To avoid systemic hyperthermia the 2024 European guidelines limit the arterial outlet temperature of the oxygenator to:",
+  o:["a maximum of 37 °C",
+     "a maximum of 39 °C",
+     "a maximum of 38 °C",
+     "a maximum of 36 °C"],
+  a:0,
+  e:"Table 28 of the 2024 European guidelines gives this a class I, level A: the arterial outlet of the oxygenator must never exceed 37 °C. Above that you are actively heating a brain that is already vulnerable, and cerebral hyperthermia is one of the few perfusion variables with a direct link to neurological outcome.",
+  s:"Chapter 19 · 2024 European guidelines, Table 28"},
+
+ {ch:2, label:"Rewarming and oxygen unloading",
+  t:"The oxygen-hemoglobin dissociation curve shifts right during CPB rewarming from 28C to 37C. What is the primary clinical implication of this rightward shift at the tissue level?",
+  o:["Reduced oxygen loading in the oxygenator, giving a lower arterial SaO2",
+     "A lower PaO2 for a given FiO2 because oxygen consumption rises on warming",
+     "Improved oxygen delivery to tissues as hemoglobin unloads O2 more readily",
+     "Increased risk of oxygen toxicity from excess free oxygen radical generation"],
+  a:2,
+  e:"A rightward shift lowers haemoglobin's affinity for oxygen, so more O₂ is released at a given tissue PO₂. On rewarming this partly offsets the rising metabolic demand — which is why uncontrolled fast rewarming is dangerous: demand climbs faster than delivery.",
+  s:"Chapter 2 · oxygen transport"},
+
+ {ch:1, label:"Gas transfer across the membrane",
+  t:"The 'Fick diffusion' equation for gas transfer across the oxygenator membrane describes rate of transfer as proportional to area x driving gradient / thickness. For CO2 vs O2, which gas transfers approximately 20x more rapidly for the same partial pressure difference?",
   o:["Oxygen, because its smaller molecule diffuses faster through the polymer",
      "Nitric oxide, because it has the lowest molecular weight of the three",
      "Carbon dioxide, because it is far more soluble in blood and membrane",
@@ -166,25 +186,8 @@ const Q = [
   e:"CO₂ is roughly 20 times more soluble than O₂ in blood and in the membrane polymer. Solubility, not molecular size, dominates the transfer rate — which is why sweep gas flow controls CO₂ removal while FiO₂ controls oxygenation.",
   s:"Chapter 1 · oxygenator physics"},
 
- {ch:2, label:"Rewarming",
-  t:"The oxygen–haemoglobin dissociation curve shifts right during rewarming from 28 °C to 37 °C. What is the primary clinical implication of this rightward shift at tissue level?",
-  o:["Reduced oxygen loading in the oxygenator, giving a lower arterial SaO₂",
-     "A lower PaO₂ for a given FiO₂ because oxygen consumption rises on warming",
-     "Improved oxygen delivery to tissues as haemoglobin unloads O₂ more readily",
-     "Increased risk of oxygen toxicity from excess free radical generation"],
-  a:2,
-  e:"A rightward shift lowers haemoglobin's affinity for oxygen, so more O₂ is released at a given tissue PO₂. On rewarming this partly offsets the rising metabolic demand — which is precisely why uncontrolled fast rewarming is dangerous: demand climbs faster than delivery.",
-  s:"Chapter 2 · oxygen transport"},
-
- {ch:2, label:"Deep hypothermia",
-  t:"During deep hypothermic circulatory arrest at 18 °C, cerebral metabolic rate for oxygen (CMRO₂) falls to approximately what fraction of the normothermic baseline, based on a Q10 of 2.2?",
-  o:["1/4  (25 %)", "1/8  (12.5 %)", "1/32  (3.1 %)", "1/16  (6.25 %)"],
-  a:1,
-  e:"From 37 °C to 18 °C is a fall of 19 °C, close to two Q10 intervals. With a Q10 of 2.2, metabolism drops by a factor of about 2.2² ≈ 4.8, and the commonly quoted figure at 18 °C is near one eighth of baseline — roughly 12 to 17 per cent. That is what underpins a safe arrest interval of about 30 minutes.",
-  s:"Chapter 2 · hypothermia"},
-
- {ch:12, label:"Counterpulsation",
-  t:"A 68 kg man in cardiogenic shock after an anterior infarction has a cardiac index of 1.6 L/min/m², a pulmonary capillary wedge pressure of 28 mmHg, and severe aortic regurgitation with a dilated left ventricle. Intra-aortic balloon counterpulsation would be expected to:",
+ {ch:12, label:"Counterpulsation in aortic regurgitation",
+  t:"A 68 kg man in cardiogenic shock after an anterior infarction has a cardiac index of 1.6 liters per minute per square meter, a pulmonary capillary wedge pressure of 28 mmHg, and echocardiography showing severe aortic regurgitation with a dilated left ventricle. Intra-aortic balloon counterpulsation in this patient would be expected to:",
   o:["reduce end-diastolic pressure through afterload reduction alone",
      "increase the regurgitant volume and worsen ventricular distension",
      "improve coronary flow without altering the regurgitant volume",
@@ -193,14 +196,14 @@ const Q = [
   e:"The balloon inflates in diastole — exactly when an incompetent aortic valve is leaking. Raising diastolic root pressure drives more blood back into the ventricle, worsening distension and wall stress. Severe aortic regurgitation is a classic contraindication to counterpulsation.",
   s:"Chapter 12 · mechanical support"},
 
- {ch:7, label:"Device failure",
-  t:"Ninety minutes into bypass at 4.5 L/min, the pressure gradient across the oxygenator has risen from 55 to 140 mmHg at unchanged flow. Arterial oxygen tension has fallen from 240 to 95 mmHg at FiO₂ 1.0 with unchanged sweep, and the ACT is 460 s. The most appropriate action is to:",
+ {ch:7, label:"A rising transmembrane gradient",
+  t:"Ninety minutes into bypass at 4.5 L/min, the pressure gradient across the oxygenator has risen from 55 to 140 mmHg over thirty minutes at unchanged flow. The arterial oxygen tension has fallen from 240 to 95 mmHg at a fraction of inspired oxygen of 1.0 with unchanged sweep, and the activated clotting time is 460 seconds. The most appropriate action is to:",
   o:["give a further heparin bolus and continue the run",
      "increase the sweep gas flow to restore oxygenation",
      "reduce pump flow to bring the gradient back down",
      "change the oxygenator for a preprimed replacement device"],
   a:3,
-  e:"A rising transmembrane gradient together with failing gas exchange at a constant sweep is thrombosis of the fibre bundle. More heparin does not reverse clot that has already formed, and raising the sweep cannot fix a membrane that no longer exchanges. The device has to be changed — which is why a primed spare belongs within reach.",
+  e:"A rising transmembrane gradient together with failing gas exchange at a constant sweep is thrombosis of the fibre bundle. More heparin does not reverse clot already formed, and raising the sweep cannot fix a membrane that no longer exchanges. The device has to be changed.",
   s:"Chapter 7 · adverse events"}
 ];
 
@@ -294,7 +297,7 @@ function finish(){
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
-const CHAPTER_NAME = {1:"Chapter 1", 2:"Chapter 2", 7:"Chapter 7", 12:"Chapter 12"};
+const CHAPTER_NAME = {1:"Chapter 1", 2:"Chapter 2", 7:"Chapter 7", 12:"Chapter 12", 19:"Chapter 19"};
 
 function drawChapters(){
   const by = {};
