@@ -75,6 +75,27 @@
   .score small{font-size:24px;color:var(--muted);font-weight:600}
   .done h2{font-size:22px;margin:16px 0 6px}
   .done p{color:#5A5A5E;font-size:16px;margin:0 auto;max-width:330px}
+  .tiles{display:flex;gap:10px;margin:22px 0 0}
+  .tile{flex:1;background:var(--card);border-radius:16px;padding:13px 8px;text-align:center}
+  .tile b{display:block;font-size:22px;font-weight:800;color:var(--brand);line-height:1.1}
+  .tile span{display:block;margin-top:3px;font-size:12px;color:var(--muted)}
+
+  .bars{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+  .barrow{display:flex;align-items:center;gap:10px;font-size:13px}
+  .barrow .lab{flex:0 0 74px;color:#3A3A3C}
+  .barrow .track{flex:1;height:9px;border-radius:5px;background:#EDEDF1;overflow:hidden}
+  .barrow .fill{display:block;height:100%;border-radius:5px}
+  .barrow .pct{flex:0 0 38px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+
+  .review{display:none;margin:18px 0 0;background:#FBF1E3;border-radius:18px;padding:14px 16px;text-align:left}
+  .review.show{display:block}
+  .revh{font-weight:700;color:var(--exp-ink);font-size:15px;margin-bottom:8px}
+  .revrow{display:flex;justify-content:space-between;font-size:14px;color:#5A5048;padding:5px 0}
+
+  .chartcard{margin:24px 0 0;background:var(--card);border-radius:18px;padding:16px 14px 10px;text-align:left}
+  .chartcard h3{margin:0;font-size:16px;font-weight:700;color:var(--ink)}
+  .chartcard .sub{margin:2px 0 10px;font-size:13px;color:var(--muted)}
+  .chartcard svg{width:100%;height:auto;display:block}
   .recap{margin:22px 0 0;text-align:left;display:flex;flex-direction:column;gap:8px}
   .rr{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:14px;padding:11px 13px;font-size:15px}
   .dot{width:22px;height:22px;flex:0 0 22px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:700}
@@ -100,11 +121,34 @@
     <div class="score"><span id="sc">0</span><small>/5</small></div>
     <h2 id="verdict">—</h2>
     <p id="blurb"></p>
+    <div class="tiles">
+      <div class="tile"><b id="t1">0%</b><span>Overall</span></div>
+      <div class="tile"><b id="t2">0/5</b><span>This session</span></div>
+      <div class="tile"><b id="t3">0</b><span>Chapters</span></div>
+    </div>
+
+    <div class="chartcard">
+      <h3>Score progression</h3>
+      <div class="sub">Your running accuracy, question by question</div>
+      <div id="chart"></div>
+    </div>
+
+    <div class="chartcard">
+      <h3>Success rate by chapter</h3>
+      <div class="sub">Where you stand, chapter by chapter</div>
+      <div id="bars" class="bars"></div>
+    </div>
+
+    <div class="review" id="review">
+      <div class="revh">⚠︎ Chapters to review</div>
+      <div id="revlist"></div>
+    </div>
+
     <div class="recap" id="recap"></div>
     <button class="again" onclick="start()">Try again</button>
     <div class="foot">
-      <b>Perfusion Mastery</b><br>
-      Five items from a bank of 6,000, in four languages,<br>for the EBCP, AmSECT and ANZCP frameworks.
+      <b>This is one session out of a bank of 6,000 questions.</b><br>
+      Four languages, nineteen chapters, and the EBCP, AmSECT<br>and ANZCP frameworks — on the App Store and Google Play.
     </div>
   </section>
 
@@ -205,7 +249,7 @@ function choose(n){
   const q = Q[i], rows = box.children;
   const right = n === q.a;
   if (right) score++;
-  results.push({label: q.label, right});
+  results.push({label: q.label, right, ch: q.ch});
 
   rows[q.a].classList.add('ok');
   rows[q.a].querySelector('.mark').textContent = '✓';
@@ -229,6 +273,14 @@ function finish(){
   else if (score >= 3){ v.textContent = 'Solidly in range.'; b.textContent = 'And you just found one or two you would not have found by reading.'; }
   else { v.textContent = 'This is the useful part.'; b.textContent = 'Nobody discovers these gaps by re-reading a textbook. You only find them by being tested.'; }
 
+  drawChart();
+  drawChapters();
+
+  const pct = Math.round(score / Q.length * 100);
+  document.getElementById('t1').textContent = pct + '%';
+  document.getElementById('t2').textContent = score + '/' + Q.length;
+  document.getElementById('t3').textContent = new Set(results.map(x => x.ch)).size;
+
   const r = document.getElementById('recap');
   r.innerHTML = '';
   results.forEach((x, n) => {
@@ -240,6 +292,77 @@ function finish(){
   });
   document.getElementById('done').classList.add('show');
   window.scrollTo({top:0, behavior:'smooth'});
+}
+
+const CHAPTER_NAME = {1:"Chapter 1", 2:"Chapter 2", 7:"Chapter 7", 12:"Chapter 12"};
+
+function drawChapters(){
+  const by = {};
+  results.forEach(x => {
+    by[x.ch] = by[x.ch] || {n:0, ok:0};
+    by[x.ch].n++; if (x.right) by[x.ch].ok++;
+  });
+  const rows = Object.keys(by).map(k => ({
+    ch:+k, pct: Math.round(by[k].ok / by[k].n * 100), n: by[k].n
+  })).sort((a,b) => a.pct - b.pct);
+
+  document.getElementById('bars').innerHTML = rows.map(r => {
+    const col = r.pct >= 75 ? 'var(--ok)' : (r.pct >= 50 ? '#E8A33D' : 'var(--no)');
+    return `<div class="barrow">
+      <span class="lab">${CHAPTER_NAME[r.ch] || ('Chapter ' + r.ch)}</span>
+      <span class="track"><i class="fill" style="width:${Math.max(r.pct,3)}%;background:${col}"></i></span>
+      <span class="pct">${r.pct}%</span></div>`;
+  }).join('');
+
+  const weak = rows.filter(r => r.pct < 60);
+  const box = document.getElementById('review');
+  if (weak.length){
+    document.getElementById('revlist').innerHTML = weak.map(r =>
+      `<div class="revrow"><span>${CHAPTER_NAME[r.ch] || ('Chapter ' + r.ch)}</span><span>${r.pct}%</span></div>`
+    ).join('');
+    box.classList.add('show');
+  } else {
+    box.classList.remove('show');
+  }
+}
+
+function drawChart(){
+  const W = 320, H = 170, L = 34, R = 10, T = 12, B = 26;
+  const pw = W - L - R, ph = H - T - B;
+  // précision cumulée après chaque question
+  let ok = 0;
+  const pts = results.map((x, n) => { if (x.right) ok++; return Math.round(ok / (n + 1) * 100); });
+  const X = n => L + (results.length === 1 ? pw / 2 : n * pw / (results.length - 1));
+  const Y = v => T + ph - (v / 100) * ph;
+
+  let g = '';
+  [0, 25, 50, 75, 100].forEach(v => {
+    g += `<line x1="${L}" y1="${Y(v)}" x2="${W - R}" y2="${Y(v)}" stroke="#ECECF0" stroke-width="1"/>` +
+         `<text x="${L - 7}" y="${Y(v) + 4}" text-anchor="end" font-size="10" fill="#A0A0A6">${v}</text>`;
+  });
+
+  const line = pts.map((v, n) => `${n ? 'L' : 'M'}${X(n).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const area = line + ` L${X(pts.length - 1).toFixed(1)},${Y(0)} L${X(0).toFixed(1)},${Y(0)} Z`;
+
+  let dots = '';
+  pts.forEach((v, n) => {
+    const c = results[n].right ? '#43C37C' : '#EF5B4E';
+    dots += `<circle cx="${X(n).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="5" fill="#fff" stroke="${c}" stroke-width="2.5"/>`;
+    dots += `<text x="${X(n).toFixed(1)}" y="${H - 8}" text-anchor="middle" font-size="10" fill="#A0A0A6">Q${n + 1}</text>`;
+  });
+
+  document.getElementById('chart').innerHTML =
+    `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Score progression">
+       <defs><linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+         <stop offset="0%" stop-color="#213A59" stop-opacity="0.14"/>
+         <stop offset="100%" stop-color="#213A59" stop-opacity="0"/>
+       </linearGradient></defs>
+       ${g}
+       <path d="${area}" fill="url(#fade)"/>
+       <path d="${line}" fill="none" stroke="#213A59" stroke-width="2.5"
+             stroke-linejoin="round" stroke-linecap="round"/>
+       ${dots}
+     </svg>`;
 }
 
 function start(){
