@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Perfusion Mastery — live session</title>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#F2F2F7; --card:#FFFFFF; --ink:#101114; --muted:#8A8A8E; --line:#E6E6EB;
+    --row:#F4F4F6; --badge:#E8E8ED; --badge-ink:#9B9BA1;
+    --ok-bg:#E9F7EE; --ok-line:#7FD3A2; --ok:#43C37C;
+    --no-bg:#FDEDEC; --no-line:#F3A49C; --no:#EF5B4E;
+    --exp-bg:#FBF1E3; --exp-ink:#E09B36; --exp-chip:#F7DEB4;
+    --violet:#8B5CF6; --violet-bg:#F3EBFF;
+    --brand:#213A59; --teal:#10CF9B;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:400 17px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:430px;margin:0 auto;padding:14px 14px 40px}
+
+  header{display:flex;align-items:center;gap:10px;margin:6px 2px 14px;flex-wrap:nowrap}
+  header .bar{min-width:30px}
+  header .pill{flex:0 0 auto}
+  .back{width:34px;height:34px;border-radius:50%;background:#D8D8DE;display:grid;place-items:center;
+        color:#fff;font-size:17px;font-weight:600}
+  .qnum{font-size:16px;color:#6E6E73}
+  .qnum b{color:var(--ink);font-size:18px}
+  .bar{flex:1;height:4px;border-radius:2px;background:#DEDEE3;overflow:hidden}
+  .bar i{display:block;height:100%;background:#9A9AA0;transition:width .3s}
+  .pill{padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap}
+  .pill.exp{background:var(--violet-bg);color:var(--violet)}
+  .pill.mode{background:var(--row);color:#3A3A3C}
+
+  .qcard{background:var(--card);border-radius:22px;padding:16px 18px 12px;
+         box-shadow:0 1px 3px rgba(16,17,20,.06)}
+  .qtop{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;
+        padding-bottom:12px;border-bottom:1px solid var(--line)}
+  .qtop .pill{flex:0 0 auto}
+  .qtext{font-size:21px;line-height:1.3;font-weight:700;margin:14px 0 12px}
+  .qfoot{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:14px}
+
+  .opts{margin:14px 0 0;display:flex;flex-direction:column;gap:10px}
+  .opt{display:flex;gap:12px;align-items:center;background:var(--row);border:1.5px solid transparent;
+       border-radius:16px;padding:13px 14px;cursor:pointer;transition:background .15s,border-color .15s}
+  .opt:active{background:#ECECEF}
+  .ob{width:30px;height:30px;flex:0 0 30px;border-radius:50%;background:var(--badge);color:var(--badge-ink);
+      display:grid;place-items:center;font-weight:600;font-size:15px}
+  .ot{flex:1;font-size:16px;color:#3A3A3C}
+  .mark{width:26px;height:26px;flex:0 0 26px;border-radius:50%;display:none;place-items:center;
+        color:#fff;font-size:15px;font-weight:700}
+  .opt.ok{background:var(--ok-bg);border-color:var(--ok-line)}
+  .opt.ok .ob{background:var(--ok);color:#fff}
+  .opt.ok .mark{display:grid;background:var(--ok)}
+  .opt.no{background:var(--no-bg);border-color:var(--no-line)}
+  .opt.no .ob{background:var(--no);color:#fff}
+  .opt.no .mark{display:grid;background:var(--no)}
+  .locked .opt{cursor:default}
+
+  .explain{display:none;margin-top:14px;background:var(--exp-bg);border-radius:18px;padding:14px 16px}
+  .explain.show{display:block}
+  .exph{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--exp-ink);font-size:17px}
+  .bulb{width:34px;height:34px;border-radius:50%;background:var(--exp-chip);display:grid;place-items:center;font-size:17px}
+  .explain p{margin:10px 0 0;font-size:15.5px;line-height:1.5;color:#4A4A4E}
+  .src{margin-top:10px;font-size:13px;color:#8A7B63}
+
+  .next{display:none;width:100%;margin-top:16px;padding:15px;border:0;border-radius:16px;
+        background:var(--brand);color:#fff;font-size:17px;font-weight:600;cursor:pointer}
+  .next.show{display:block}
+
+  .done{display:none;text-align:center;padding:30px 10px}
+  .done.show{display:block}
+  .score{font-size:62px;font-weight:800;color:var(--brand);line-height:1}
+  .score small{font-size:24px;color:var(--muted);font-weight:600}
+  .done h2{font-size:22px;margin:16px 0 6px}
+  .done p{color:#5A5A5E;font-size:16px;margin:0 auto;max-width:330px}
+  .recap{margin:22px 0 0;text-align:left;display:flex;flex-direction:column;gap:8px}
+  .rr{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:14px;padding:11px 13px;font-size:15px}
+  .dot{width:22px;height:22px;flex:0 0 22px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:700}
+  .again{margin-top:22px;padding:14px 26px;border:0;border-radius:14px;background:var(--brand);color:#fff;
+         font-size:16px;font-weight:600;cursor:pointer}
+  .foot{margin-top:26px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6}
+  .foot b{color:var(--brand)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="back">‹</div>
+    <div class="qnum">Question <b id="cur">1</b> / 5</div>
+    <div class="bar"><i id="prog" style="width:20%"></i></div>
+    <div class="pill exp" id="diff">Expert</div>
+  </header>
+
+  <main id="stage"></main>
+
+  <section class="done" id="done">
+    <div class="score"><span id="sc">0</span><small>/5</small></div>
+    <h2 id="verdict">—</h2>
+    <p id="blurb"></p>
+    <div class="recap" id="recap"></div>
+    <button class="again" onclick="start()">Try again</button>
+    <div class="foot">
+      <b>Perfusion Mastery</b><br>
+      Five items from a bank of 6,000, in four languages,<br>for the EBCP, AmSECT and ANZCP frameworks.
+    </div>
+  </section>
+
+</div>
+
+<script>
+const Q = [
+ {ch:1, label:"Gas transfer",
+  t:"The 'Fick diffusion' equation for gas transfer across the oxygenator membrane describes rate of transfer as proportional to area × driving gradient / thickness. For CO₂ vs O₂, which gas transfers approximately 20× more rapidly for the same partial pressure difference?",
+  o:["Oxygen, because its smaller molecule diffuses faster through the polymer",
+     "Nitric oxide, because it has the lowest molecular weight of the three",
+     "Carbon dioxide, because it is far more soluble in blood and membrane",
+     "Neither: the two gases cross the membrane at essentially the same rate"],
+  a:2,
+  e:"CO₂ is roughly 20 times more soluble than O₂ in blood and in the membrane polymer. Solubility, not molecular size, dominates the transfer rate — which is why sweep gas flow controls CO₂ removal while FiO₂ controls oxygenation.",
+  s:"Chapter 1 · oxygenator physics"},
+
+ {ch:2, label:"Rewarming",
+  t:"The oxygen–haemoglobin dissociation curve shifts right during rewarming from 28 °C to 37 °C. What is the primary clinical implication of this rightward shift at tissue level?",
+  o:["Reduced oxygen loading in the oxygenator, giving a lower arterial SaO₂",
+     "A lower PaO₂ for a given FiO₂ because oxygen consumption rises on warming",
+     "Improved oxygen delivery to tissues as haemoglobin unloads O₂ more readily",
+     "Increased risk of oxygen toxicity from excess free radical generation"],
+  a:2,
+  e:"A rightward shift lowers haemoglobin's affinity for oxygen, so more O₂ is released at a given tissue PO₂. On rewarming this partly offsets the rising metabolic demand — which is precisely why uncontrolled fast rewarming is dangerous: demand climbs faster than delivery.",
+  s:"Chapter 2 · oxygen transport"},
+
+ {ch:2, label:"Deep hypothermia",
+  t:"During deep hypothermic circulatory arrest at 18 °C, cerebral metabolic rate for oxygen (CMRO₂) falls to approximately what fraction of the normothermic baseline, based on a Q10 of 2.2?",
+  o:["1/4  (25 %)", "1/8  (12.5 %)", "1/32  (3.1 %)", "1/16  (6.25 %)"],
+  a:1,
+  e:"From 37 °C to 18 °C is a fall of 19 °C, close to two Q10 intervals. With a Q10 of 2.2, metabolism drops by a factor of about 2.2² ≈ 4.8, and the commonly quoted figure at 18 °C is near one eighth of baseline — roughly 12 to 17 per cent. That is what underpins a safe arrest interval of about 30 minutes.",
+  s:"Chapter 2 · hypothermia"},
+
+ {ch:12, label:"Counterpulsation",
+  t:"A 68 kg man in cardiogenic shock after an anterior infarction has a cardiac index of 1.6 L/min/m², a pulmonary capillary wedge pressure of 28 mmHg, and severe aortic regurgitation with a dilated left ventricle. Intra-aortic balloon counterpulsation would be expected to:",
+  o:["reduce end-diastolic pressure through afterload reduction alone",
+     "increase the regurgitant volume and worsen ventricular distension",
+     "improve coronary flow without altering the regurgitant volume",
+     "leave aortic root pressure and ventricular volume unchanged"],
+  a:1,
+  e:"The balloon inflates in diastole — exactly when an incompetent aortic valve is leaking. Raising diastolic root pressure drives more blood back into the ventricle, worsening distension and wall stress. Severe aortic regurgitation is a classic contraindication to counterpulsation.",
+  s:"Chapter 12 · mechanical support"},
+
+ {ch:7, label:"Device failure",
+  t:"Ninety minutes into bypass at 4.5 L/min, the pressure gradient across the oxygenator has risen from 55 to 140 mmHg at unchanged flow. Arterial oxygen tension has fallen from 240 to 95 mmHg at FiO₂ 1.0 with unchanged sweep, and the ACT is 460 s. The most appropriate action is to:",
+  o:["give a further heparin bolus and continue the run",
+     "increase the sweep gas flow to restore oxygenation",
+     "reduce pump flow to bring the gradient back down",
+     "change the oxygenator for a preprimed replacement device"],
+  a:3,
+  e:"A rising transmembrane gradient together with failing gas exchange at a constant sweep is thrombosis of the fibre bundle. More heparin does not reverse clot that has already formed, and raising the sweep cannot fix a membrane that no longer exchanges. The device has to be changed — which is why a primed spare belongs within reach.",
+  s:"Chapter 7 · adverse events"}
+];
+
+let i = 0, score = 0, results = [];
+
+function render(){
+  const q = Q[i];
+  document.getElementById('cur').textContent = i + 1;
+  document.getElementById('prog').style.width = ((i + 1) / Q.length * 100) + '%';
+  const stage = document.getElementById('stage');
+  stage.innerHTML =
+    '<div class="qcard">' +
+      '<div class="qtop"><span class="pill mode">◎ Learn</span><span class="pill exp">● Expert</span></div>' +
+      '<div class="qtext"></div>' +
+      '<div class="qfoot"><span></span><span>🔖</span></div>' +
+    '</div>' +
+    '<div class="opts" id="opts"></div>' +
+    '<div class="explain" id="exp"><div class="exph"><span class="bulb">💡</span>Explanation</div><p></p><div class="src"></div></div>' +
+    '<button class="next" id="next">Next question</button>';
+
+  stage.querySelector('.qtext').textContent = q.t;
+  stage.querySelector('.qfoot span').textContent = '🏷 Chapter ' + q.ch;
+  stage.querySelector('.explain p').textContent = q.e;
+  stage.querySelector('.src').textContent = q.s;
+
+  const box = document.getElementById('opts');
+  q.o.forEach((text, n) => {
+    const row = document.createElement('div');
+    row.className = 'opt';
+    row.innerHTML = '<div class="ob">' + 'ABCD'[n] + '</div><div class="ot"></div><div class="mark"></div>';
+    row.querySelector('.ot').textContent = text;
+    row.onclick = () => choose(n);
+    box.appendChild(row);
+  });
+
+  document.getElementById('next').onclick = () => {
+    i++;
+    if (i < Q.length) render(); else finish();
+  };
+}
+
+function choose(n){
+  const box = document.getElementById('opts');
+  if (box.classList.contains('locked')) return;
+  box.classList.add('locked');
+  const q = Q[i], rows = box.children;
+  const right = n === q.a;
+  if (right) score++;
+  results.push({label: q.label, right});
+
+  rows[q.a].classList.add('ok');
+  rows[q.a].querySelector('.mark').textContent = '✓';
+  if (!right){
+    rows[n].classList.add('no');
+    rows[n].querySelector('.mark').textContent = '✕';
+  }
+  document.getElementById('exp').classList.add('show');
+  const nx = document.getElementById('next');
+  nx.textContent = i === Q.length - 1 ? 'See my result' : 'Next question';
+  nx.classList.add('show');
+  nx.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function finish(){
+  document.getElementById('stage').style.display = 'none';
+  document.querySelector('header').style.display = 'none';
+  document.getElementById('sc').textContent = score;
+  const v = document.getElementById('verdict'), b = document.getElementById('blurb');
+  if (score === 5){ v.textContent = 'Five out of five.'; b.textContent = 'Now try the twenty that are not on the slide.'; }
+  else if (score >= 3){ v.textContent = 'Solidly in range.'; b.textContent = 'And you just found one or two you would not have found by reading.'; }
+  else { v.textContent = 'This is the useful part.'; b.textContent = 'Nobody discovers these gaps by re-reading a textbook. You only find them by being tested.'; }
+
+  const r = document.getElementById('recap');
+  r.innerHTML = '';
+  results.forEach((x, n) => {
+    const d = document.createElement('div');
+    d.className = 'rr';
+    d.innerHTML = '<span class="dot" style="background:' + (x.right ? 'var(--ok)' : 'var(--no)') + '">' +
+                  (x.right ? '✓' : '✕') + '</span><span>' + (n+1) + '. ' + x.label + '</span>';
+    r.appendChild(d);
+  });
+  document.getElementById('done').classList.add('show');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function start(){
+  i = 0; score = 0; results = [];
+  document.getElementById('done').classList.remove('show');
+  document.getElementById('stage').style.display = '';
+  document.querySelector('header').style.display = '';
+  render();
+  window.scrollTo({top:0});
+}
+start();
+</script>
+</body>
+</html>
